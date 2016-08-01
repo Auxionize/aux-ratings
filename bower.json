@@ -1,0 +1,10 @@
+{
+  "name": "angular-rating",
+  "homepage": "https://github.com/Auxionize/rating-display",
+  "authors": [
+    "Kristian Tachev <kristian.tachev@auxionize.com>"
+  ],
+  "description": "Reusable component for displaying rating stars inside auxionize project",
+  "main": "./js/angular-rating.js",
+  "license": "MIT"
+}
