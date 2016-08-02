@@ -4,8 +4,8 @@ console.log('Loaded module Auxionize-Rating')
  * Created by Kristian Tachev
  */
 
-angular.module('aux-rating', []);
-// angular.module('aux-rating').directive('auxRating', function () {
+angular.module('aux-ratings', []);
+// angular.module('aux-ratings').directive('auxRating', function () {
 // 	var count = 0;
 // 	var template = '<span>\
 // 				<span class="rate high" title="{{::ratingCtrl.rating|number:1}} of {{ratingCtrl.rates}} rates" ng-if="rates>0">\
@@ -75,7 +75,7 @@ angular.module('aux-rating', []);
 // 		]
 // 	};
 // });
-angular.module('aux-rating').directive('rateButtonModal', function () {
+angular.module('aux-ratings').directive('rateButtonModal', function () {
 	var template = '<button\
 	class="btn btn-warning btn-xs"\
 	ng-click="rate()" \
@@ -196,7 +196,7 @@ angular.module('aux-rating').directive('rateButtonModal', function () {
 	}
 })
 
-angular.module('aux-rating').directive('ratingStars', function () {
+angular.module('aux-ratings').directive('ratingStars', function () {
 	// ["{{::(\"One\"|translate)}}\",\"{{::(\"Two\"|translate)}}\",\"{{::(\"Three\"|translate)}}\",\"{{::(\"Four\"|translate)}}\",\"{{::(\"Five\"|translate)}}"]
 	var template = '<div class="row text-center">\
 		<h5><company-link company="company"></company-link></h5>\
@@ -248,7 +248,7 @@ angular.module('aux-rating').directive('ratingStars', function () {
 	};
 });
 
-angular.module('aux-rating').directive('addRating', function () {
+angular.module('aux-ratings').directive('addRating', function () {
 	var template = '<form novalidate="novalidate" class="panel panel-ratings" accept-charset="utf-8" ng-show="addRatingCtrl.isRatingsPanelVisible">\
 	<div class="panel-heading clearfix">\
 	<h4 class="panel-title pull-left">\
@@ -453,7 +453,7 @@ angular.module('aux-rating').directive('addRating', function () {
 	};
 });
 
-angular.module('aux-rating').directive('companyRating', function () {
+angular.module('aux-ratings').directive('companyRating', function () {
 	var template = '<span>\
 	<span class="rate high" title="{{::ratingCtrl.rating|number:1}} of {{ratingCtrl.rates}} rates" ng-if="rates>0">\
 	<i class="fa" ng-class="star.class" ng-repeat="star in ratingCtrl.stars" style="color: orange">&nbsp;</i>\
