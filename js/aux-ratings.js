@@ -75,50 +75,51 @@ angular.module('aux-ratings', []);
 // 		]
 // 	};
 // });
-angular.module('aux-ratings').directive('rateButtonModal', function () {
-	var template = '<button\
+angular.module('aux-ratings').component('rateButtonModal', {
+	//restrict: 'EA',
+	replace: true,
+	template: '<button\
 	class="btn btn-warning btn-xs"\
-	ng-click="rate()" \
-	ng-disabled="rated"\
-	title="{{hoverText|translate}}"> \
+	ng-click="$ctrl.rate()" \
+	ng-disabled="$ctrl.rated"\
+	title="{{$ctrl.hoverText|translate}}"> \
 	<i class="fa fa-star"></i>\
-	{{hoverText|translate}}\
-	</button>';
+	{{$ctrl.hoverText|translate}}\
+	</button>',
+	bindings: {
+		data: '<',
+		reference: '<',     // reference to rate
+		rateContext: '@',   // channel as a 'buyer' or as a 'seller'
+		bid: '<',           // the current bid object
+		hoverText: '@',     // button & hover text
+		rated: '<',
+		callback: '&'      // the function to call once the api call is succesfull
+	},
+	//controllerAs: 'rateButtonModalCtrl',
+	controller: function ($scope, $uibModal, ApiService) {
 
-	return {
-		restrict: 'EA',
-		replace: true,
-		template: template,
-		scope: {
-			data: '<',
-			reference: '<',     // reference to rate
-			rateContext: '@',   // channel as a 'buyer' or as a 'seller'
-			bid: '<',           // the current bid object
-			hoverText: '@',     // button & hover text
-			rated: '<',
-			callback: '&',      // the function to call once the api call is succesfull
-		},
-		controllerAs: 'rateButtonModalCtrl',
-		controller: ['$scope', '$uibModal', 'ApiService', function ($scope, $uibModal, api) {
 
-			var self = this;
-			this.data = $scope.data;
-			this.reference = $scope.reference;
-			this.channel = $scope.rateContext;
-			this.bid = ($scope.bid) ? $scope.bid : {};
-			this.callback = $scope.callback;
+		var self = this;
+		//this.data = $scope.data;
+		//this.reference = $scope.reference;
+		this.channel = this.rateContext;
+		this.bid = (this.bid) ? this.bid : {};
+		//this.callback = $scope.callback;
 
-			$scope.rate = function () {
-				console.log('%c $scope.data: ', 'background: steelblue; color: white', $scope.data);
-				console.log('%c $scope.reference: ', 'background: steelblue; color: white', $scope.reference);
-				var template = '<div class="panel panel-default" style="margin-bottom:0;">\
+		this.rate = function () {
+			console.log('%c this.data: ', 'background: steelblue; color: white', this.data);
+			console.log('%c this.reference: ', 'background: steelblue; color: white', this.reference);
+
+			$uibModal.open({
+				animation: true,
+				template: '<div class="panel panel-default" style="margin-bottom:0;">\
 						<div class="panel-heading text-center">\
 						<h3 class="panel-title" ng-if="channel===\'winner\'" translate>Rate the winner for this auction</h3>\
 						<h3 class="panel-title" ng-if="channel===\'seller\'" translate>Rate the bidder for this auction</h3>\
 						<h3 class="panel-title" ng-if="channel===\'buyer\'" translate>Rate the buyer for this auction</h3>\
 						</div>\
 						<div class="panel-body text-center">\
-						<rating-stars user="user" company="company" rate="rating" max="5" note="note"></rating-stars>\
+						<rating-stars user="user" company="company" get-rate="setRate(value)" get-note="setNote(value)" max="5" ></rating-stars>\
 						<div class="alert alert-danger animate-if" role="alert" style="margin: 10px 0px 0px 0px;" ng-if="showError && rating==0" bind-html-compile="defaultErrorMessage|translate\"></div>\
 						</div>\
 						<div class="panel-footer text-center">\
@@ -130,122 +131,124 @@ angular.module('aux-ratings').directive('rateButtonModal', function () {
 						<translate>Rate</translate>\
 						</button>\
 						</div>\
-						</div>';
+						</div>',
+				size: 'sm',
+				//controllerAs: 'modalCtrl',
+				controller: ['$scope','$uibModalInstance', 'currentUser', 'ApiService',
+					function ($scope, $uibModalInstance, currentUser, api) {
 
-				$uibModal.open({
-					animation: true,
-					template: template,
-					size: 'sm',
-					controllerAs: 'modalCtrl',
-					controller: ['$scope', '$uibModalInstance', 'currentUser', 'ApiService',
-						function ($scope, $uibModalInstance, currentUser, api) {
+						$scope.data = self.data;
+						$scope.rating = 2;
+						$scope.note = '';
+						$scope.defaultErrorMessage = 'Your rate cannot be 0!<br>Please correct it or cancel!';
+						$scope.channel = self.channel;
+						$scope.user = self.reference;
+						$scope.rating = 0;
+						$scope.company = self.reference;
+						$scope.showError = false;
 
-							$scope.data = self.data;
-							$scope.rating = 2;
-							$scope.note = '';
-							$scope.defaultErrorMessage = 'Your rate cannot be 0!<br>Please correct it or cancel!';
-							$scope.channel = self.channel;
-							$scope.user = self.reference;
-							$scope.rating = 0;
-							$scope.company = self.reference;
-							$scope.showError = false;
+						$scope.setRate = function(value){
+							$scope.rating = value;
+						};
 
-							$scope.rate = function () {
+						$scope.setNote = function(value){
+							$scope.note = value;
+						};
 
-								if($scope.rating > 0) {
-									$scope.showError = false;
+						$scope.rate = function () {
+							if($scope.rating > 0) {
+								$scope.showError = false;
 
-									var fromReferenceId = null;
-									var toReferenceId = null;
+								var fromReferenceId = null;
+								var toReferenceId = null;
 
-									if(self.channel == 'buyer') {
-										fromReferenceId = self.data.reference.id;
-										toReferenceId = self.data.buyerReference.id;
-									} else {
-										if(self.channel == 'winner') self.channel = 'buyer';
-										fromReferenceId = self.data.buyerReference.id;
-										toReferenceId = self.reference.toReferenceId;
-									}
-
-									api.auction.rate(
-										self.channel, self.reference.id,
-										fromReferenceId, toReferenceId,
-										$scope.rating, $scope.note)
-										.then(function (success) {
-											console.log('Rate ' + self.channel + ' successful');
-											self.callback();
-											$uibModalInstance.close();
-										}, function (err) {
-											console.log('Error: ', err);
-										})
-									;
+								if(self.channel == 'buyer') {
+									fromReferenceId = self.data.reference.id;
+									toReferenceId = self.data.buyerReference.id;
 								} else {
-									$scope.showError = true;
+									if(self.channel == 'winner') self.channel = 'buyer';
+									fromReferenceId = self.data.buyerReference.id;
+									toReferenceId = self.reference.toReferenceId;
 								}
-							};
 
-							$scope.close = function () {
-								$uibModalInstance.close();
+								api.auction.rate(
+									self.channel, self.reference.id,
+									fromReferenceId, toReferenceId,
+									$scope.rating, $scope.note)
+									.then(function (success) {
+										console.log('Rate ' + self.channel + ' successful');
+										self.callback();
+										$uibModalInstance.close();
+									}, function (err) {
+										console.log('Error: ', err);
+									})
+								;
+							} else {
+								$scope.showError = true;
 							}
+						};
+
+						$scope.close = function () {
+							$uibModalInstance.close();
 						}
-					]
-				});
-			}
+					}
+				]
+			});
+		}
 
-		}]
 	}
-})
 
-angular.module('aux-ratings').directive('ratingStars', function () {
-	// ["{{::(\"One\"|translate)}}\",\"{{::(\"Two\"|translate)}}\",\"{{::(\"Three\"|translate)}}\",\"{{::(\"Four\"|translate)}}\",\"{{::(\"Five\"|translate)}}"]
-	var template = '<div class="row text-center">\
-		<h5><company-link company="company"></company-link></h5>\
+});
+
+angular.module('aux-ratings').component('ratingStars', {
+	//restrict: 'EA',
+	replace: true,
+	template: '<div class="row text-center">\
+		<h5><company-link company="$ctrl.company"></company-link></h5>\
 		<h3 style="color:orange;">\
-		<uib-rating ng-model="rate"\
-		max="max"\
-		readonly="isReadOnly"\
+		<uib-rating ng-model="$ctrl.rate"\
+		ng-change="$ctrl.getRate({value:$ctrl.rate})"\
+		max="$ctrl.max"\
+		readonly="$ctrl.isReadOnly"\
 		style="outline: none; cursor: pointer;"\
 		titles=""\
-		on-hover="hoveringOver(value)" on-leave="overStar = rate"\
-		rating-states="ratingStates" aria-labelledby="default-rating">\
+		on-hover="$ctrl.hoveringOver(value)" on-leave="$ctrl.overStar = $ctrl.rate"\
+		rating-states="$ctrl.ratingStates" aria-labelledby="default-rating">\
 		</uib-rating>\
 		</h3>\
-		<div>{{overStar}} / {{max}}</div>\
+		<div>{{$ctrl.overStar}} / {{$ctrl.max}}</div>\
 		<div style="padding: 10px 15px 0 15px;">\
-		<textarea name="note" id="" rows="3" translated-placeholder="Note" class="form-control" ng-model="note"></textarea>\
+		<textarea name="note" id="" rows="3" translated-placeholder="Note" class="form-control" ng-model="$ctrl.note" ng-change="$ctrl.getNote({value:$ctrl.note})"></textarea>\
 		</div>\
-		</div>';
+		</div>',
+	bindings: {
+		user: '<',
+		company: '<',
+		rate: '<',
+		note: '<',
+		getRate: '&',
+		getNote: '&',
+		max: '<',
+		isReadOnly: '<'
+	},
+	//controllerAs: 'ratingStarsCtrl',
+	controller: ['ApiService', function (api) {
+		var self = this;
 
-	return {
-		restrict: 'EA',
-		replace: true,
-		template: template,
-		scope: {
-			user: '<',
-			company: '<',
-			rate: '=',
-			note: '=',
-			max: '<',
-			isReadOnly: '<'
-		},
-		controllerAs: 'ratingStarsCtrl',
-		controller: ['$scope', 'ApiService', function ($scope, api) {
-			var self = this;
+		self.overStar = 0;
+		if(!self.max) self.max = 10;
 
-			$scope.overStar = 0;
-			if(!$scope.max) $scope.max = 10;
+		self.hoveringOver = function(value) {
+			self.overStar = value;
+			self.percent = 100 * (value / self.max);
+		};
 
-			$scope.hoveringOver = function(value) {
-				$scope.overStar = value;
-				$scope.percent = 100 * (value / $scope.max);
-			};
+		self.ratingStates = [];
+		for(var i=0; i<self.max; i++) {
+			self.ratingStates.push({stateOn: 'fa fa-star', stateOff: 'fa fa-star-o'});
+		}
+	}]
 
-			$scope.ratingStates = [];
-			for(var i=0; i<$scope.max; i++) {
-				$scope.ratingStates.push({stateOn: 'fa fa-star', stateOff: 'fa fa-star-o'});
-			}
-		}]
-	};
 });
 
 angular.module('aux-ratings').directive('addRating', function () {
@@ -466,7 +469,7 @@ angular.module('aux-ratings').directive('companyRating', function () {
 	<i class="fa fa-star-o" style="color: orange">&nbsp;</i><translate>No ratings</translate>\
 	</span>\
 	</span>';
-	
+
 	return {
 		restrict:       'EA',
 		replace:        true,
