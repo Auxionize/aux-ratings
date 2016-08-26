@@ -251,30 +251,32 @@ angular.module('aux-ratings').component('ratingStars', {
 
 });
 
-angular.module('aux-ratings').directive('addRating', function () {
-	var template = '<form novalidate="novalidate" class="panel panel-ratings" accept-charset="utf-8" ng-show="addRatingCtrl.isRatingsPanelVisible">\
+angular.module('aux-ratings').component('addRating', {
+	//restrict: 'EA',
+	replace: true,
+	template: '<form novalidate="novalidate" class="panel panel-ratings" accept-charset="utf-8" ng-show="$ctrl.isRatingsPanelVisible">\
 	<div class="panel-heading clearfix">\
 	<h4 class="panel-title pull-left">\
-	<a href ng-click="addRatingCtrl.toggleVisible()">\
+	<a href ng-click="$ctrl.toggleVisible()">\
 	<span>\
-	<i class="fa fa-plus-square" ng-show="!addRatingCtrl.isVisible"></i>\
-	<i class="fa fa-minus-square" ng-show="addRatingCtrl.isVisible"></i>\
+	<i class="fa fa-plus-square" ng-show="!$ctrl.isVisible"></i>\
+	<i class="fa fa-minus-square" ng-show="$ctrl.isVisible"></i>\
 	</span>\
 	<span class="ratings-title" translate>Ratings</span>\
 	</a>\
 	</h4>\
 	<debug-tool object="data"></debug-tool>\
 	</div>\
-	<div class="panel-body" ng-show="addRatingCtrl.isVisible" style="padding: 0;">\
-	<div ng-if="addRatingCtrl.isBuyer" class="references">\
-	<table ng-if="addRatingCtrl.winningSellers.length > 0" class="ratings-table">\
+	<div class="panel-body" ng-show="$ctrl.isVisible" style="padding: 0;">\
+	<div ng-if="$ctrl.isBuyer" class="references">\
+	<table ng-if="$ctrl.winningSellers.length > 0" class="ratings-table">\
 	<thead>\
 	<tr>\
 	<th colspan="2"><translate>Winners</translate></th>\
 	</tr>\
 	</thead>\
 	<tbody>\
-	<tr ng-repeat="winner in addRatingCtrl.winningSellers | orderBy:\'id\'" class="winner">\
+	<tr ng-repeat="winner in $ctrl.winningSellers | orderBy:\'id\'" class="winner">\
 	<td width="60%">\
 	<span class="fa-stack aux-icon text-won ng-scope">\
 	<i class="fa fa-circle fa-stack-2x"></i>\
@@ -291,25 +293,25 @@ angular.module('aux-ratings').directive('addRating', function () {
 	</div>\
 	</span>\
 	<rate-button-modal ng-if="winner.rating.length == 0 && !winner.isRefreshing"\
-	data="addRatingCtrl.data"\
+	data="$ctrl.data"\
 	reference="winner"\
 	hover-text="{{\'Rate winner\'|translate}}"\
 	rate-context="winner"\
-	callback="addRatingCtrl.refresh(winner)">\
+	callback="$ctrl.refresh(winner)">\
 	</rate-button-modal>\
 	<loading-icon ng-if="winner.isRefreshing"></loading-icon>\
 	</td>\
 	</tr>\
 	</tbody>\
 	</table>\
-	<table ng-if="addRatingCtrl.loosingSellers.length > 0" class="ratings-table">\
+	<table ng-if="$ctrl.loosingSellers.length > 0" class="ratings-table">\
 	<thead>\
 	<tr>\
 	<th colspan="2"><translate>Other Participants</translate></th>\
 	</tr>\
 	</thead>\
 	<tbody>\
-	<tr ng-repeat="loser in addRatingCtrl.loosingSellers | orderBy:\'id\'">\
+	<tr ng-repeat="loser in $ctrl.loosingSellers | orderBy:\'id\'">\
 	<td width="60%">\
 	<company-link company="loser"></company-link>\
 	</td>\
@@ -322,11 +324,11 @@ angular.module('aux-ratings').directive('addRating', function () {
 	</div>\
 	</span>\
 	<rate-button-modal ng-if="loser.rating.length == 0  && !loser.isRefreshing"\
-	data="addRatingCtrl.data"\
+	data="$ctrl.data"\
 	reference="loser"\
 	hover-text="{{\'Rate seller\'|translate}}"\
 	rate-context="seller"\
-	callback="addRatingCtrl.refresh(loser)">\
+	callback="$ctrl.refresh(loser)">\
 	</rate-button-modal>\
 	<loading-icon ng-if="loser.isRefreshing"></loading-icon>\
 	</td>\
@@ -334,7 +336,7 @@ angular.module('aux-ratings').directive('addRating', function () {
 	</tbody>\
 	</table>\
 	</div>\
-	<div ng-if="addRatingCtrl.isWinningSeller" class="references">\
+	<div ng-if="$ctrl.isWinningSeller" class="references">\
 	<table class="ratings-table">\
 	<thead>\
 	<tr>\
@@ -343,117 +345,111 @@ angular.module('aux-ratings').directive('addRating', function () {
 	</thead>\
 	<tbody>\
 	<tr>\
-	<td width="60%"><company-link company="addRatingCtrl.buyerObject"></company-link></td>\
+	<td width="60%"><company-link company="$ctrl.buyerObject"></company-link></td>\
 	<td width="40%">\
-	<span ng-if="addRatingCtrl.buyerObject.rating.length > 0">\
-	<company-rating rates="1" current-rating="addRatingCtrl.buyerObject.rating[0].rate" show-rates-count="false"></company-rating>\
+	<span ng-if="$ctrl.buyerObject.rating.length > 0">\
+	<company-rating rates="1" current-rating="$ctrl.buyerObject.rating[0].rate" show-rates-count="false"></company-rating>\
 	<div class="rating-note" role="alert">\
 	<strong translate>Note</strong>:\
-	<quote>{{addRatingCtrl.buyerObject.rating[0].note}}</quote>\
+	<quote>{{$ctrl.buyerObject.rating[0].note}}</quote>\
 	</div>\
 	</span>\
-	<rate-button-modal ng-if="addRatingCtrl.buyerObject.rating.length == 0  && !addRatingCtrl.buyerObject.isRefreshing"\
-	data="addRatingCtrl.data"\
-	reference="addRatingCtrl.buyerObject"\
+	<rate-button-modal ng-if="$ctrl.buyerObject.rating.length == 0  && !$ctrl.buyerObject.isRefreshing"\
+	data="$ctrl.data"\
+	reference="$ctrl.buyerObject"\
 	hover-text="{{\'Rate buyer\'|translate}}"\
 	rate-context="buyer"\
-	callback="addRatingCtrl.refresh(addRatingCtrl.buyerObject)">\
+	callback="$ctrl.refresh($ctrl.buyerObject)">\
 	</rate-button-modal>\
-	<i class="fa fa-spinner fa-pulse" ng-if="addRatingCtrl.buyerObject.isRefreshing"></i>\
+	<i class="fa fa-spinner fa-pulse" ng-if="$ctrl.buyerObject.isRefreshing"></i>\
 	</td>\
 	</tr>\
 	</tbody>\
 	</table>\
 	</div>\
 	</div>\
-	</form>';
+	</form>',
+	bindings: {
+		data: '<' // the auction
+	},
+	//controllerAs: 'addRatingCtrl',
+	controller: ['ApiService',
+		function (api) {
+			var self = this;
 
-	return {
-		restrict: 'EA',
-		replace: true,
-		template: template,
-		scope: {
-			data: '<' // the auction
-		},
-		controllerAs: 'addRatingCtrl',
-		controller: ['$scope', 'ApiService',
-			function ($scope, api) {
-				var self = this;
+			//self.data = $scope.data;
+			self.isRatingsPanelVisible = false;
+			self.isVisible = true;
+			self.winningSellers = [];
+			self.loosingSellers = [];
+			self.buyerObject = {};
+			self.isBuyer = this.data.reference && this.data.reference.type=='buyer';
+			self.isWinningSeller = this.data.reference
+				&& this.data.reference.type === 'seller'
+				&& this.data.reference.AuctionReference.isWinner;
 
-				self.data = $scope.data;
-				self.isRatingsPanelVisible = false;
-				self.isVisible = true;
+			var prepareDataForUI = function() {
 				self.winningSellers = [];
 				self.loosingSellers = [];
 				self.buyerObject = {};
-				self.isBuyer = $scope.data.reference && $scope.data.reference.type=='buyer';
-				self.isWinningSeller = $scope.data.reference
-					&& $scope.data.reference.type === 'seller'
-					&& $scope.data.reference.AuctionReference.isWinner;
 
-				var prepareDataForUI = function() {
-					self.winningSellers = [];
-					self.loosingSellers = [];
-					self.buyerObject = {};
+				if(self.isBuyer) {
+					var winningIds = [];
 
-					if(self.isBuyer) {
-						var winningIds = [];
+					angular.forEach(self.data.winners, function(val) {
+						winningIds.push(val.company.id);
+					});
 
-						angular.forEach($scope.data.winners, function(val) {
-							winningIds.push(val.company.id);
-						});
-
-						angular.forEach($scope.data.allReferences, function(val) {
-							var destination = winningIds.indexOf(val.root.Company.id) > -1
-								? 'winningSellers'
-								: 'loosingSellers';
-							var currentCompany = angular.copy(val.root.Company);
-							currentCompany.rating = val.ToRatings;
-							currentCompany.isRefreshing = false;
-							currentCompany.toReferenceId = val.id;
-							self[destination].push(currentCompany);
-						});
+					angular.forEach(self.data.allReferences, function(val) {
+						var destination = winningIds.indexOf(val.root.Company.id) > -1
+							? 'winningSellers'
+							: 'loosingSellers';
+						var currentCompany = angular.copy(val.root.Company);
+						currentCompany.rating = val.ToRatings;
+						currentCompany.isRefreshing = false;
+						currentCompany.toReferenceId = val.id;
+						self[destination].push(currentCompany);
+					});
+				}
+				else if(self.isWinningSeller) {
+					self.buyerObject.isRefreshing = false;
+					if(self.data.buyerReference) {
+						self.buyerObject = self.data.buyerReference.root.Company;
+						self.buyerObject.rating = self.data.buyerReference.ToRatings;
 					}
-					else if(self.isWinningSeller) {
-						self.buyerObject.isRefreshing = false;
-						if($scope.data.buyerReference) {
-							self.buyerObject = $scope.data.buyerReference.root.Company;
-							self.buyerObject.rating = $scope.data.buyerReference.ToRatings;
-						}
-					}
+				}
 
-					self.isRatingsPanelVisible = ((self.winningSellers.length > 0) || (self.loosingSellers.length > 0) || self.isWinningSeller);
-				};
+				self.isRatingsPanelVisible = ((self.winningSellers.length > 0) || (self.loosingSellers.length > 0) || self.isWinningSeller);
+			};
 
-				prepareDataForUI();
+			prepareDataForUI();
 
-				self.toggleVisible = function() {
-					self.isVisible = !self.isVisible;
-				};
+			self.toggleVisible = function() {
+				self.isVisible = !self.isVisible;
+			};
 
-				self.rate = function(channel, CompanyId, FromReferenceId, ToReferenceId, rate, note) {
-					api.auction.rate(channel, CompanyId, FromReferenceId, ToReferenceId, rate, note)
-						.then(function () {
-							self.data.$reload()
-								.then(function() {
-									prepareDataForUI();
-								});
-						}, function (err) {
-							console.log('Err: ', err);
-						});
-				};
+			self.rate = function(channel, CompanyId, FromReferenceId, ToReferenceId, rate, note) {
+				api.auction.rate(channel, CompanyId, FromReferenceId, ToReferenceId, rate, note)
+					.then(function () {
+						self.data.$reload()
+							.then(function() {
+								prepareDataForUI();
+							});
+					}, function (err) {
+						console.log('Err: ', err);
+					});
+			};
 
-				self.refresh = function (reference) {
-					console.log('%c Callback REFRESH: ', 'background: steelblue; color: white');
-					reference.isRefreshing = true;
-					self.data.$reload()
-						.then(function() {
-							reference.isRefreshing = false;
-							prepareDataForUI();
-						});
-				};
-			}]
-	};
+			self.refresh = function (reference) {
+				console.log('%c Callback REFRESH: ', 'background: steelblue; color: white');
+				reference.isRefreshing = true;
+				self.data.$reload()
+					.then(function() {
+						reference.isRefreshing = false;
+						prepareDataForUI();
+					});
+			};
+		}]
 });
 
 angular.module('aux-ratings').directive('companyRating', function () {
