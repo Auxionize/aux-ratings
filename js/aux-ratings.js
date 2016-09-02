@@ -8,11 +8,11 @@ angular.module('aux-ratings', []);
 // angular.module('aux-ratings').directive('auxRating', function () {
 // 	var count = 0;
 // 	var template = '<span>\
-// 				<span class="rate high" title="{{::ratingCtrl.rating|number:1}} of {{ratingCtrl.rates}} rates" ng-if="rates>0">\
-// 				<i class="fa" ng-class="star.class" ng-repeat="star in ratingCtrl.stars" \ style="color: orange">&nbsp;</i>\
-// 				<br ng-if="ratingCtrl.twoLines">\
+// 				<span class="rate high" title="{{::$ctrl.rating|number:1}} of {{$ctrl.rates}} rates" ng-if="rates>0">\
+// 				<i class="fa" ng-class="star.class" ng-repeat="star in $ctrl.stars" \ style="color: orange">&nbsp;</i>\
+// 				<br ng-if="$ctrl.twoLines">\
 // 				<span class="number"> {{::(currentRating|number:1)}}\
-// 				<span  ng-if="::ratingCtrl.showRatesCount">({{::rates}})</span>\
+// 				<span  ng-if="::$ctrl.showRatesCount">({{::rates}})</span>\
 // 				</span>\
 // 				</span>\
 // 				<span ng-if="::(rates==0)">\
@@ -30,7 +30,7 @@ angular.module('aux-ratings', []);
 // 			showRatesCount: '<', // Prints the count of all rates.               Default: true
 // 			twoLines:       '<'  // Separates the ui in two lines.               Default: false
 // 		},
-// 		controllerAs: 'auxRatingCtrl',
+// 		controllerAs: 'aux$ctrl',
 // 		controller: ['$scope', '$stateParams',
 // 			function ($scope, $stateParams) {
 //
@@ -134,7 +134,7 @@ angular.module('aux-ratings').component('rateButtonModal', {
 						</div>',
 				size: 'sm',
 				//controllerAs: 'modalCtrl',
-				controller: ['$scope','$uibModalInstance', 'currentUser', 'ApiService',
+				controller: ['$scope', '$uibModalInstance', 'currentUser', 'ApiService',
 					function ($scope, $uibModalInstance, currentUser, api) {
 
 						$scope.data = self.data;
@@ -143,30 +143,29 @@ angular.module('aux-ratings').component('rateButtonModal', {
 						$scope.defaultErrorMessage = 'Your rate cannot be 0!<br>Please correct it or cancel!';
 						$scope.channel = self.channel;
 						$scope.user = self.reference;
-						$scope.rating = 0;
 						$scope.company = self.reference;
 						$scope.showError = false;
 
-						$scope.setRate = function(value){
+						$scope.setRate = function (value) {
 							$scope.rating = value;
 						};
 
-						$scope.setNote = function(value){
+						$scope.setNote = function (value) {
 							$scope.note = value;
 						};
 
 						$scope.rate = function () {
-							if($scope.rating > 0) {
+							if ($scope.rating > 0) {
 								$scope.showError = false;
 
 								var fromReferenceId = null;
 								var toReferenceId = null;
 
-								if(self.channel == 'buyer') {
+								if (self.channel == 'buyer') {
 									fromReferenceId = self.data.reference.id;
 									toReferenceId = self.data.buyerReference.id;
 								} else {
-									if(self.channel == 'winner') self.channel = 'buyer';
+									if (self.channel == 'winner') self.channel = 'buyer';
 									fromReferenceId = self.data.buyerReference.id;
 									toReferenceId = self.reference.toReferenceId;
 								}
@@ -236,15 +235,15 @@ angular.module('aux-ratings').component('ratingStars', {
 		var self = this;
 
 		self.overStar = 0;
-		if(!self.max) self.max = 10;
+		if (!self.max) self.max = 10;
 
-		self.hoveringOver = function(value) {
+		self.hoveringOver = function (value) {
 			self.overStar = value;
 			self.percent = 100 * (value / self.max);
 		};
 
 		self.ratingStates = [];
-		for(var i=0; i<self.max; i++) {
+		for (var i = 0; i < self.max; i++) {
 			self.ratingStates.push({stateOn: 'fa fa-star', stateOff: 'fa fa-star-o'});
 		}
 	}]
@@ -349,7 +348,7 @@ angular.module('aux-ratings').component('addRating', {
 	<td width="40%">\
 	<span ng-if="$ctrl.buyerObject.rating.length > 0">\
 	<company-rating rates="1" current-rating="$ctrl.buyerObject.rating[0].rate" show-rates-count="false"></company-rating>\
-	<div class="rating-note" role="alert">\
+	<div ng-if="$ctrl.buyerObject.rating[0].note" class="rating-note" role="alert">\
 	<strong translate>Note</strong>:\
 	<quote>{{$ctrl.buyerObject.rating[0].note}}</quote>\
 	</div>\
@@ -372,7 +371,7 @@ angular.module('aux-ratings').component('addRating', {
 	bindings: {
 		data: '<' // the auction
 	},
-	//controllerAs: 'addRatingCtrl',
+	//controllerAs: 'add$ctrl',
 	controller: ['ApiService',
 		function (api) {
 			var self = this;
@@ -383,24 +382,24 @@ angular.module('aux-ratings').component('addRating', {
 			self.winningSellers = [];
 			self.loosingSellers = [];
 			self.buyerObject = {};
-			self.isBuyer = this.data.reference && this.data.reference.type=='buyer';
+			self.isBuyer = this.data.reference && this.data.reference.type == 'buyer';
 			self.isWinningSeller = this.data.reference
 				&& this.data.reference.type === 'seller'
 				&& this.data.reference.AuctionReference.isWinner;
 
-			var prepareDataForUI = function() {
+			var prepareDataForUI = function () {
 				self.winningSellers = [];
 				self.loosingSellers = [];
 				self.buyerObject = {};
 
-				if(self.isBuyer) {
+				if (self.isBuyer) {
 					var winningIds = [];
 
-					angular.forEach(self.data.winners, function(val) {
+					angular.forEach(self.data.winners, function (val) {
 						winningIds.push(val.company.id);
 					});
 
-					angular.forEach(self.data.allReferences, function(val) {
+					angular.forEach(self.data.allReferences, function (val) {
 						var destination = winningIds.indexOf(val.root.Company.id) > -1
 							? 'winningSellers'
 							: 'loosingSellers';
@@ -411,9 +410,9 @@ angular.module('aux-ratings').component('addRating', {
 						self[destination].push(currentCompany);
 					});
 				}
-				else if(self.isWinningSeller) {
+				else if (self.isWinningSeller) {
 					self.buyerObject.isRefreshing = false;
-					if(self.data.buyerReference) {
+					if (self.data.buyerReference) {
 						self.buyerObject = self.data.buyerReference.root.Company;
 						self.buyerObject.rating = self.data.buyerReference.ToRatings;
 					}
@@ -424,15 +423,15 @@ angular.module('aux-ratings').component('addRating', {
 
 			prepareDataForUI();
 
-			self.toggleVisible = function() {
+			self.toggleVisible = function () {
 				self.isVisible = !self.isVisible;
 			};
 
-			self.rate = function(channel, CompanyId, FromReferenceId, ToReferenceId, rate, note) {
+			self.rate = function (channel, CompanyId, FromReferenceId, ToReferenceId, rate, note) {
 				api.auction.rate(channel, CompanyId, FromReferenceId, ToReferenceId, rate, note)
 					.then(function () {
 						self.data.$reload()
-							.then(function() {
+							.then(function () {
 								prepareDataForUI();
 							});
 					}, function (err) {
@@ -444,7 +443,7 @@ angular.module('aux-ratings').component('addRating', {
 				console.log('%c Callback REFRESH: ', 'background: steelblue; color: white');
 				reference.isRefreshing = true;
 				self.data.$reload()
-					.then(function() {
+					.then(function () {
 						reference.isRefreshing = false;
 						prepareDataForUI();
 					});
@@ -452,71 +451,78 @@ angular.module('aux-ratings').component('addRating', {
 		}]
 });
 
-angular.module('aux-ratings').directive('companyRating', function () {
-	var template = '<span>\
-	<span class="rate high" title="{{::ratingCtrl.rating|number:1}} of {{ratingCtrl.rates}} rates" ng-if="rates>0">\
-	<i class="fa" ng-class="star.class" ng-repeat="star in ratingCtrl.stars" style="color: orange">&nbsp;</i>\
-	<br ng-if="ratingCtrl.twoLines">\
-	<span class="number"> {{::(currentRating|number:1)}}\
-	<span  ng-if="::ratingCtrl.showRatesCount">({{::rates}})</span>\
+angular.module('aux-ratings').component('companyRating', {
+	//restrict:       'EA',
+	replace:        true,
+	template:    '<span>\
+	<span class="rate high" title="{{::$ctrl.rating|number:1}} of {{$ctrl.rates}} rates" ng-if="$ctrl.rates>0">\
+	<i class="fa" ng-class="star.class" ng-repeat="star in $ctrl.stars" style="color: orange">&nbsp;</i>\
+	<br ng-if="$ctrl.twoLines">\
+	<span class="number"> {{$ctrl.currentRating|number:1}}\
+	<span  ng-if="::$ctrl.showRatesCount">({{$ctrl.rates}})</span>\
 	</span>\
 	</span>\
-	<span ng-if="::(rates==0)">\
+	<span ng-if="$ctrl.rates==0">\
 	<i class="fa fa-star-o" style="color: orange">&nbsp;</i><translate>No ratings</translate>\
 	</span>\
-	</span>';
+	</span>',
+	bindings: {
+		rates:          '<', // Number of all rates.                         Required
+		currentRating:  '<', // Current average rating based on all rates.   Required
+		maxRating:      '<', // The rating scale.                            Default: 5
+		showRatesCount: '<', // Prints the count of all rates.               Default: true
+		twoLines:       '<',
+		testCollection: '<'
+		// Separates the ui in two lines.               Default: false
+	},
+	//controllerAs: '$ctrl',
+	controller: ['$stateParams',
+		function ($stateParams) {
+			this.defaultMaxRating = 5;
 
-	return {
-		restrict:       'EA',
-		replace:        true,
-		template:    template,
-		scope: {
-			rates:          '<', // Number of all rates.                         Required
-			currentRating:  '<', // Current average rating based on all rates.   Required
-			maxRating:      '<', // The rating scale.                            Default: 5
-			showRatesCount: '<', // Prints the count of all rates.               Default: true
-			twoLines:       '<'  // Separates the ui in two lines.               Default: false
-		},
-		controllerAs: 'ratingCtrl',
-		controller: ['$scope', '$stateParams',
-			function ($scope, $stateParams) {
-				var self = this;
+			this.twoLines = this.twoLines || false;
+			this.rating = this.currentRating;
+			this.stars =  [];
 
-				var defaultMaxRating = 5;
+			this.setStars = function () {
+				this.maxRating = this.maxRating || this.defaultMaxRating;
+				var fs = true;
+				for (var i = 0; i < this.maxRating; i++) {
+					var n = (i + 1) % this.rating;
+					var c = 'fa-star-o';
 
-				this.showRatesCount =    ($scope.showRatesCount !== undefined) ? $scope.showRatesCount : true;
-				this.twoLines =     $scope.twoLines || false;
-
-				this.rates =        $scope.rates;
-				this.rating =       $scope.currentRating;
-				this.maxRating =    $scope.maxRating || defaultMaxRating;
-				this.stars =        [];
-
-				this.setStars = function (rating, maxRating) {
-					self.stars = [];
-					var fs = true;
-					for(var i=0; i<maxRating; i++) {
-						var n = (i+1)%rating;
-						var c = 'fa-star-o';
-
-						if(i < Math.floor(rating)) { c = 'fa-star'; }
-						else if (isFloat(n) && n<1 && fs) { c = 'fa-star-half-o'; fs = false; }
-
-						self.stars[i] = {
-							class: c
-						};
+					if (i < Math.floor(this.rating) || n > 0 && n <= 0.25) {
+						c = 'fa-star';
 					}
-				};
-				this.setStars($scope.currentRating, this.maxRating);
-
-				$scope.$watch('currentRating', function () {
-					self.setStars($scope.currentRating, self.maxRating);
-				});
-
-				function isFloat(n){
-					return n === +n && n !== (n|0);
+					else if (isFloat(n) && n > 0.25 && n <= 0.75 && fs) {
+						c = 'fa-star-half-o';
+						fs = false;
+					}
+					this.stars[i] = {
+						class: c
+					};
 				}
+			};
+
+			this.setStars();
+
+			this.$onChanges = function (changesObj) {
+				var firstCheck = (changesObj.currentRating && changesObj.currentRating.currentValue) ? true : false;
+				var secondCheck = (changesObj.rates && changesObj.rates.currentValue) ? true : false;
+				if(firstCheck){
+					this.rating = changesObj.currentRating.currentValue;
+				}
+				if(secondCheck){
+					this.rates = changesObj.rates.currentValue;
+				}
+				if(firstCheck && secondCheck){
+					this.setStars();
+				}
+			};
+
+			function isFloat(n){
+				return n === +n && n !== (n|0);
 			}
-		]
-	};
+		}
+	]
 });
