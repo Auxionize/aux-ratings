@@ -138,7 +138,7 @@ angular.module('aux-ratings').component('rateButtonModal', {
 					function ($scope, $uibModalInstance, currentUser, api) {
 
 						$scope.data = self.data;
-						$scope.rating = 2;
+						$scope.rating = 0;
 						$scope.note = '';
 						$scope.defaultErrorMessage = 'Your rate cannot be 0!<br>Please correct it or cancel!';
 						$scope.channel = self.channel;
