@@ -344,7 +344,10 @@ angular.module('aux-ratings').component('addRating', {
 	</thead>\
 	<tbody>\
 	<tr>\
-	<td width="60%"><company-link company="$ctrl.buyerObject"></company-link></td>\
+	<td width="60%">\
+	<user-link ng-if="$ctrl.data.Company.personalOrBusiness === \'PERSONAL\'" user="$ctrl.data.Creator"></user-link>\
+	<company-link ng-if="$ctrl.data.Company.personalOrBusiness !== \'PERSONAL\'" company="$ctrl.buyerObject"></company-link>\
+	</td>\
 	<td width="40%">\
 	<span ng-if="$ctrl.buyerObject.rating.length > 0">\
 	<company-rating rates="1" current-rating="$ctrl.buyerObject.rating[0].rate" show-rates-count="false"></company-rating>\
