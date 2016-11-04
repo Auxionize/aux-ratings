@@ -1,4 +1,5 @@
 console.log('Loaded module Auxionize-Rating')
+const _ = require('lodash');
 
 /**
  * Created by Kristian Tachev
@@ -344,7 +345,10 @@ angular.module('aux-ratings').component('addRating', {
 	</thead>\
 	<tbody>\
 	<tr>\
-	<td width="60%"><company-link company="$ctrl.buyerObject"></company-link></td>\
+	<td width="60%">\
+	<user-link ng-if="$ctrl.data.Company.personalOrBusiness === \'PERSONAL\'" user="$ctrl.data.Creator"></user-link>\
+	<company-link ng-if="$ctrl.data.Company.personalOrBusiness !== \'PERSONAL\'" company="$ctrl.buyerObject"></company-link>\
+	</td>\
 	<td width="40%">\
 	<span ng-if="$ctrl.buyerObject.rating.length > 0">\
 	<company-rating rates="1" current-rating="$ctrl.buyerObject.rating[0].rate" show-rates-count="false"></company-rating>\
@@ -396,7 +400,12 @@ angular.module('aux-ratings').component('addRating', {
 					var winningIds = [];
 
 					angular.forEach(self.data.winners, function (val) {
-						winningIds.push(val.company.id);
+						if (val.company) {
+							winningIds.push(val.company.id);
+						}
+						else {
+							winningIds.push(val.siteUrl);
+						}
 					});
 
 					angular.forEach(self.data.allReferences, function (val) {
@@ -409,6 +418,10 @@ angular.module('aux-ratings').component('addRating', {
 						currentCompany.toReferenceId = val.id;
 						self[destination].push(currentCompany);
 					});
+
+					// var bidsFromSite = _.filter(self.data.Bids, function (bid){
+					// 	return bid.from == "site";
+					// });
 				}
 				else if (self.isWinningSeller) {
 					self.buyerObject.isRefreshing = false;
