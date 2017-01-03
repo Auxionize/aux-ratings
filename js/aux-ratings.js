@@ -1,5 +1,4 @@
 console.log('Loaded module Auxionize-Rating')
-const _ = require('lodash');
 
 /**
  * Created by Kristian Tachev
