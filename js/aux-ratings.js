@@ -310,7 +310,7 @@ angular.module('aux-ratings').component('addRating', {
 	</tr>\
 	</thead>\
 	<tbody>\
-	<tr ng-repeat="loser in $ctrl.loosingSellers | orderBy:\'id\'">\
+	<tr ng-repeat="loser in $ctrl.loosingSellers | orderBy:\'id\'" ng-if="loser.canBeRated">\
 	<td width="60%">\
 	<company-link company="loser"></company-link>\
 	</td>\
@@ -418,9 +418,15 @@ angular.module('aux-ratings').component('addRating', {
 						self[destination].push(currentCompany);
 					});
 
-					// var bidsFromSite = _.filter(self.data.Bids, function (bid){
-					// 	return bid.from == "site";
-					// });
+					angular.forEach(self.loosingSellers, function (loser) {
+						angular.forEach(self.data.Bids, function (bid) {
+							if(bid.from == "bidder" && bid.bidderReferenceId == loser.toReferenceId) {
+								loser.canBeRated = true;
+							} else {
+								loser.canBeRated = false;
+							}
+						});
+					});
 				}
 				else if (self.isWinningSeller) {
 					self.buyerObject.isRefreshing = false;
