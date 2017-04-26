@@ -419,14 +419,17 @@ angular.module('aux-ratings').component('addRating', {
 					});
 
 					angular.forEach(self.loosingSellers, function (loser) {
-						angular.forEach(self.data.Bids, function (bid) {
+						for (var i = 0; i < self.data.Bids.length; i++) {
+							var bid = self.data.Bids[i];
 							if(bid.from == "bidder" && bid.bidderReferenceId == loser.toReferenceId) {
 								loser.canBeRated = true;
+								break;
 							} else {
 								loser.canBeRated = false;
 							}
-						});
+						}
 					});
+
 				}
 				else if (self.isWinningSeller) {
 					self.buyerObject.isRefreshing = false;
