@@ -7,5 +7,5 @@
   "description": "Reusable component for displaying rating stars inside auxionize project",
   "main": "./js/aux-ratings.js",
   "license": "MIT",
-  "version": "0.0.14"
+  "version": "0.0.15"
 }
